@@ -2,12 +2,22 @@ FROM dwolla/jenkins-agent-core:debian
 LABEL maintainer="Dwolla Dev <dev+jenkins-mono@dwolla.com>"
 LABEL org.label-schema.vcs-url="https://github.com/Dwolla/jenkins-agent-docker-mono"
 
-ENV MONO_VERSION=5.18.0.240+dfsg-3
+ENV MONO_VERSION=4.0.0
 
 USER root
 
-RUN apt-get update \
-  && apt-get install -y nuget mono-xbuild=${MONO_VERSION} mono-devel=${MONO_VERSION} \
-  && rm -rf /var/lib/apt/lists/* /tmp/*
+RUN apt-key adv --keyserver pool.sks-keyservers.net --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+RUN echo "deb https://download.mono-project.com/repo/debian/ wheezy/snapshots/4.0.0 main" > /etc/apt/sources.list.d/mono-xamarin.list
+
+# Needed for the libgnomeui-0 package.
+RUN echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/stretch.list
+
+# The wheezy/snapshots/4.0.0 repo is signed with a SHA1 hash, which by default is no longer supported by apt.
+RUN apt-get -o APT::Hashes::SHA1::Weak=yes -o APT::Hashes::RIPE-MD/160::Weak=yes update
+
+RUN apt-get install -y libgnomeui-0 libgdiplus \
+  && apt-get install --allow-remove-essential -y -t wheezy libmono-corlib4.5-cil \
+  && apt-get install -y -t wheezy mono-devel nuget \
+  && rm -rf /var/lib/apt/lists/*
 
 USER jenkins
