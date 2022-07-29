@@ -1,11 +1,10 @@
-CORE_TAGS := $(TAG_ENV)
+CORE_TAG := $(CORE_JDK11_TAG)
 JOB := core-${CORE_TAG}
-CHECK_JOB := check-${CORE_TAG}
 CLEAN_JOB := clean-${CORE_TAG}
 
-all: ${CHECK_JOB} ${JOB}
+all: ${JOB}
 clean: ${CLEAN_JOB}
-.PHONY: all check clean ${JOB} ${CHECK_JOB} ${CLEAN_JOB}
+.PHONY: all clean ${JOB} ${CLEAN_JOB}
 
 ${JOB}: core-%: Dockerfile
 	docker build \
