@@ -37,6 +37,7 @@ COPY --from=thrift-builder /usr/local/bin/thrift /usr/local/bin/thrift
 # install ruby
 RUN apt install -y ruby ruby-dev
 RUN gem install bundler
+RUN chown -R jenkins /var/lib/gems/2.7.0/
 
 # add repository and install mono
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF A6A19B38D3D831EF 04EE7237B7D453EC 648ACFD622F3D138 0E98404D386FA1D9 EF0F382A1A7B6500
