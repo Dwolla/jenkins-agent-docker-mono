@@ -1,29 +1,5 @@
 ARG CORE_TAG
 
-# stage 1: build thrift cli from source
-#
-FROM dwolla/jenkins-agent-core:$CORE_TAG as thrift-builder
-
-USER root
-ENV THRIFT_VERSION=0.9.3
-
-# install deps for building thrift-compiler
-RUN apt update && apt install -y wget libboost-dev libboost-test-dev libboost-program-options-dev libboost-filesystem-dev libboost-thread-dev libevent-dev automake libtool flex bison pkg-config g++
-
-# add repository and install libssl1.0-dev, which is needed to build thrift 0.9.3 https://github.com/rvm/rvm/issues/4764
-RUN echo "deb http://security.ubuntu.com/ubuntu bionic-security main" > /etc/apt/sources.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-RUN apt update && apt install -y libssl1.0-dev
-
-# build thrift from source
-RUN wget -O /tmp/thrift-${THRIFT_VERSION}.tar.gz https://archive.apache.org/dist/thrift/${THRIFT_VERSION}/thrift-${THRIFT_VERSION}.tar.gz
-RUN cd /tmp && tar -xvf /tmp/thrift-${THRIFT_VERSION}.tar.gz
-RUN cd /tmp/thrift-${THRIFT_VERSION} && ./configure --without-ruby
-RUN cd /tmp/thrift-${THRIFT_VERSION} && make
-RUN cd /tmp/thrift-${THRIFT_VERSION} && make install
-
-# stage 2: create jenkins agent
-#
 FROM dwolla/jenkins-agent-core:$CORE_TAG
 
 LABEL maintainer="Dwolla Dev <dev+jenkins-mono@dwolla.com>"
@@ -31,8 +7,11 @@ LABEL org.label-schema.vcs-url="https://github.com/Dwolla/jenkins-agent-docker-m
 
 USER root
 
-# copy thrift cli
-COPY --from=thrift-builder /usr/local/bin/thrift /usr/local/bin/thrift
+# install thrift compiler
+RUN apt install -y wget
+RUN cd /tmp && wget https://launchpad.net/ubuntu/+archive/primary/+files/thrift-compiler_0.9.1-2.1_amd64.deb
+RUN dpkg -i /tmp/thrift-compiler_0.9.1-2.1_amd64.deb
+RUN rm /tmp/thrift-compiler_0.9.1-2.1_amd64.deb && apt remove -y wget
 
 # install ruby
 RUN apt install -y ruby ruby-dev
