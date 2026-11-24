@@ -3,4 +3,4 @@ version: "3.8"
 services:
   sut:
     build: .
-    command: command -v nuget xbuild mono
+    command: command -v xbuild mono
