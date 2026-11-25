@@ -9,7 +9,7 @@ Docker image based on Dwolla’s [core Jenkins Agent](https://github.com/Dwolla/
 
 - **Mono 6.12** (`mono`, `xbuild`) from Debian trixie, the core image's OS. `xbuild` compiles with `mcs`: Debian's Mono doesn't ship the Roslyn `csc`.
 - The Jenkins agent runs on the core image's Java 21.
-- No `nuget`: builds bring their own `nuget.exe`.
+- `nuget`: NuGet 3.4.3 (`nuget.exe`, pinned by checksum) run through Mono.
 
 ## Local Development
 
@@ -26,3 +26,5 @@ Or pass a core tag from [jenkins-agents-workflow](https://github.com/Dwolla/jenk
 CI publishes the image for `linux/amd64` only. On Apple silicon, build for arm64 instead: Mono crashes under amd64 emulation, and a cross-built amd64 image ends up without Mono's CA certificate store.
 
 `make PLATFORM=linux/arm64 all`
+
+`make test` (with the same `PLATFORM`) checks that `mono`, `xbuild`, `mcs` and `nuget` are on the `PATH`.
