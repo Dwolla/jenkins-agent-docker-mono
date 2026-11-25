@@ -2,5 +2,8 @@ version: "3.8"
 
 services:
   sut:
-    build: .
-    command: command -v xbuild mono
+    build:
+      context: .
+      args:
+        CORE_TAG: ${CORE_TAG:?set CORE_TAG}
+    entrypoint: ["sh", "-c", "command -v mono && command -v xbuild && command -v mcs"]
